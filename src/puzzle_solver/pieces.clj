@@ -64,19 +64,22 @@
                            1 2 :-
                            2 2 :|]}])
 
+(defn print-piece [p]
+  (let [parts (partition 3 (:shape p))
+        part-with-coords (fn [x y]
+                           (some (fn [[xp yp s]] (when (and (= x xp) (= y yp)) s)) parts))]
+    (println "")
+    (println "")
+    (doseq [y (reverse (range -3 5))]
+      (prn (for [x (range -3 5)]
+             (if-let [part (part-with-coords x y)]
+               part
+               10)))
+      (println ""))))
+
 (defn print-pieces []
   (doseq [p pieces]
-    (let [parts (partition 3 (:shape p))
-          part-with-coords (fn [x y]
-                             (some (fn [[xp yp s]] (when (and (= x xp) (= y yp)) s)) parts))]
-      (println "")
-      (println "")
-      (doseq [y (reverse (range -3 5))]
-        (prn (for [x (range -3 5)]
-               (if-let [part (part-with-coords x y)]
-                 part
-                 10)))
-        (println "")))))
+    (print-piece p)))
 
 (defn inverse [part]
   (if (= :| part)
@@ -87,13 +90,13 @@
   (case r
     0 [x y p]
     1 [y (- x) (inverse p)]
-    2 [(- x) y p]
+    2 [(- x) (- y) p]
     3 [(- y) x (inverse p)]))
 
 (defn- rotate-piece [{:keys [shape]} r]
   (let [parts (partition 3 shape)
         parts-rotated (map (partial rotate-part r) parts)]
-    (flatten parts-rotated)))
+    {:shape (flatten parts-rotated)}))
 
 (defn- rotations [piece]
   (for [r (range 0 (if (:symmetric? piece) 2 4))]
@@ -101,4 +104,8 @@
 
 (def pieces-rotations (map rotations pieces))
 
-(def piece-configs (cartesian-product pieces-rotations))
+(defn print-rotations [piece]
+  (doseq [r (range 0 4)]
+    (print-piece (rotate-piece piece r))))
+
+(def piece-configs (apply cartesian-product pieces-rotations))
