@@ -1,19 +1,94 @@
 (ns puzzle-solver.pieces
   (:require [clojure.math.combinatorics :refer [cartesian-product]]))
 
-(def pieces [{:symmetric? true
+(def pieces [{:shape      [0 0 :-
+                           1 0 :|
+                           2 0 :-
+                           1 1 :-
+                           1 2 :|]}
+             {:shape      [0 0 :|
+                           1 0 :-
+                           0 1 :-
+                           0 2 :|
+                           -1 1 :|]}
+             {:symmetric? true
               :shape      [0 0 :|
-                           0 1 :-]}])
+                           0 1 :-
+                           0 2 :|
+                           -1 1 :|
+                           1 1 :|]}
+             {:shape      [0 0 :|
+                           0 1 :-
+                           0 2 :|
+                           1 0 :-
+                           2 0 :|]}
+             {:symmetric? true
+              :shape      [0 0 :|
+                           1 0 :-
+                           2 0 :|
+                           3 0 :-
+                           4 0 :|]}
+             {:shape      [0 0 :|
+                           1 0 :-
+                           2 0 :|
+                           0 1 :-
+                           2 1 :-]}
+             {:shape      [0 0 :|
+                           1 0 :-
+                           1 1 :|
+                           1 2 :-
+                           1 3 :|]}
+             {:shape      [0 0 :-
+                           0 1 :|
+                           0 2 :-
+                           1 2 :|
+                           1 3 :-]}
+             {:shape      [0 0 :|
+                           1 0 :-
+                           0 1 :-
+                           -1 1 :|
+                           -1 2 :-]}
+             {:shape      [0 0 :-
+                           0 1 :|
+                           1 1 :-
+                           0 2 :-
+                           0 3 :|]}
+             {:shape      [0 0 :-
+                           1 0 :|
+                           0 1 :|
+                           1 1 :-
+                           1 2 :|]}
+             {:shape      [0 0 :|
+                           1 0 :-
+                           1 1 :|
+                           1 2 :-
+                           2 2 :|]}])
+
+(defn print-pieces []
+  (doseq [p pieces]
+    (let [parts (partition 3 (:shape p))
+          part-with-coords (fn [x y]
+                             (some (fn [[xp yp s]] (when (and (= x xp) (= y yp)) s)) parts))]
+      (println "")
+      (println "")
+      (doseq [y (reverse (range -3 5))]
+        (prn (for [x (range -3 5)]
+               (if-let [part (part-with-coords x y)]
+                 part
+                 10)))
+        (println "")))))
 
 (defn inverse [part]
-  )
+  (if (= :| part)
+    :-
+    :|))
 
 (defn- rotate-part [r [x y p]]
   (case r
     0 [x y p]
-    1 [y -x p]
-    2 [-x y p]
-    3 [-y x p]))
+    1 [y (- x) (inverse p)]
+    2 [(- x) y p]
+    3 [(- y) x (inverse p)]))
 
 (defn- rotate-piece [{:keys [shape]} r]
   (let [parts (partition 3 shape)
