@@ -93,9 +93,11 @@
     2 [(- x) (- y) p]
     3 [(- y) x (inverse p)]))
 
-(defn- rotate-piece [{:keys [shape]} r]
-  (let [parts (partition 3 shape)
-        parts-rotated (map (partial rotate-part r) parts)]
+(defn parts [{:keys [shape]}]
+  (partition 3 shape))
+
+(defn- rotate-piece [piece r]
+  (let [parts-rotated (map (partial rotate-part r) (parts piece))]
     {:shape (flatten parts-rotated)}))
 
 (defn- rotations [piece]
