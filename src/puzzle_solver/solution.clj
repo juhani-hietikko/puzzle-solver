@@ -2,12 +2,18 @@
   (:require [puzzle-solver.pieces :refer [piece-configs]]
             [puzzle-solver.board :refer [empty-board
                                          possible-placements
-                                         place]]))
+                                         place
+                                         impossible?]]))
+(def n (atom 0))
 
 (defn- branch [placed remaining board]
   (swap! n inc)
-  (if (empty? remaining)
+  (cond
+    (empty? remaining)
     placed
+    (impossible? board)
+    nil
+    :else
     (let [piece (first remaining)
           possibilities (possible-placements board piece)]
       (some

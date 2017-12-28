@@ -25,9 +25,6 @@
 
 (def board-area (cartesian-product (range 0 8) (range 0 8)))
 
-(defn can-place? [board piece]
-  (some (partial can-place-in? board piece) board-area))
-
 (defn possible-placements [board piece]
   (filter #(can-place-in? board piece %) board-area))
 
@@ -38,3 +35,13 @@
 
 (defn place [board piece [x y]]
   (reduce (partial place-part x y) board (parts piece)))
+
+(defn- neighbours [x y]
+  [[(inc x) y] [(dec x) y] [x (inc y)] [x (dec y)]])
+
+(defn isolated-empty-square? [board [x y]]
+  (and (square-free? board x y)
+      (every? (fn [[a b]] (not (square-free? board a b))) (neighbours x y))))
+
+(defn impossible? [board]
+  (some (partial isolated-empty-square? board) board-area))
