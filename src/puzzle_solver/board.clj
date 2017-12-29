@@ -51,10 +51,7 @@
   [[(inc x) y] [(dec x) y] [x (inc y)] [x (dec y)]])
 
 (defn isolated-empty-square? [board [x y]]
-  (and (square-free? board x y)
-       (every? (fn [[a b]] (not (square-free? board a b))) (neighbours x y))))
+  (every? (fn [[a b]] (not (square-free? board a b))) (neighbours x y)))
 
 (defn hopeless? [{:keys [empty-squares] :as board}]
-  (if (< (count empty-squares) 4)
-    true
-    (some (partial isolated-empty-square? board) empty-squares)))
+  (some (partial isolated-empty-square? board) empty-squares))
