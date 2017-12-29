@@ -43,5 +43,5 @@
   (and (square-free? board x y)
       (every? (fn [[a b]] (not (square-free? board a b))) (neighbours x y))))
 
-(defn impossible? [board]
+(defn hopeless? [board]
   (some (partial isolated-empty-square? board) board-area))

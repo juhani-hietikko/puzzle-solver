@@ -3,27 +3,34 @@
             [puzzle-solver.board :refer [empty-board
                                          possible-placements
                                          place
-                                         impossible?]]))
+                                         hopeless?]]))
 (def n (atom 0))
 
 (defn- branch [placed remaining board]
   (swap! n inc)
   (cond
-    (empty? remaining)
-    placed
-    (impossible? board)
+    #_(empty? remaining)
+    (< (count remaining) 5)
+    (do (prn "HUHUHUU")
+        (prn placed)
+        placed)
+    (hopeless? board)
     nil
+    #_(when (= 0 (mod @n 500))
+        (prn board))
     :else
     (let [piece (first remaining)
-          possibilities (possible-placements board piece)]
-      (some
-        #(branch
-           (cons {:piece  piece
-                  :coords %}
-                 placed)
-           (rest remaining)
-           (place board piece %))
-        possibilities))))
+          solutions (->> (possible-placements board piece)
+                         (map
+                           #(branch
+                              (cons {:piece  piece
+                                     :coords %}
+                                    placed)
+                              (rest remaining)
+                              (place board piece %)))
+                         (filter identity))]
+      (when (seq solutions)
+        solutions))))
 
 (defn solutions []
   ;(prn (count piece-configs))
