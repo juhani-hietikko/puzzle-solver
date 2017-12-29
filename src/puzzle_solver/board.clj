@@ -3,23 +3,24 @@
             [clojure.math.combinatorics :refer [cartesian-product]]
             [clojure.set :refer [intersection]]))
 
-(def empty-board (vec (for [x (range 0 8)]
-                        (vec (for [y (range 0 8)]
-                               (cond
-                                 (and (#{3 4} x) (#{3 4} y))
-                                 :#
-                                 (= (mod x 2) (mod y 2))
-                                 :|
-                                 :else
-                                 :-))))))
+(def empty-board
+  {:squares (vec (for [x (range 0 8)]
+                   (vec (for [y (range 0 8)]
+                          (cond
+                            (and (#{3 4} x) (#{3 4} y))
+                            :#
+                            (= (mod x 2) (mod y 2))
+                            :|
+                            :else
+                            :-)))))})
 
-(defn- square-free? [board x y]
-  (and (<= 0 x 7) (<= 0 y 7) (not= :# (get-in board [x y]))))
+(defn- square-free? [{:keys [squares]} x y]
+  (and (<= 0 x 7) (<= 0 y 7) (not= :# (get-in squares [x y]))))
 
-(defn- part-fits? [board xo yo [xp yp p]]
+(defn- part-fits? [{:keys [squares] :as board} xo yo [xp yp p]]
   (let [x (+ xo xp)
         y (+ yo yp)]
-    (and (square-free? board x y) (= p (get-in board [x y])))))
+    (and (square-free? board x y) (= p (get-in squares [x y])))))
 
 (defn can-place-in? [board piece [x y]]
   (every? (partial part-fits? board x y) (parts piece)))
@@ -37,7 +38,7 @@
 (defn- place-part [xo yo board [xp yp]]
   (let [x (+ xo xp)
         y (+ yo yp)]
-    (assoc-in board [x y] :#)))
+    (assoc-in board [:squares x y] :#)))
 
 (defn place [board piece [x y]]
   (reduce (partial place-part x y) board (parts piece)))
