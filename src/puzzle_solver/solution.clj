@@ -1,5 +1,6 @@
 (ns puzzle-solver.solution
-  (:require [puzzle-solver.pieces :refer [piece-configs]]
+  (:require [puzzle-solver.pieces :refer [pieces-rotations
+                                          piece-configs]]
             [puzzle-solver.board :refer [empty-board
                                          possible-placements
                                          place
@@ -31,9 +32,17 @@
       (when (seq solutions)
         solutions))))
 
+(defn- rotation-with-limited-placements [piece-rotation]
+  (assoc piece-rotation :possible-placements (possible-placements empty-board piece-rotation)))
+
+(defn- piece-with-limited-placements [piece-rotations]
+  (map rotation-with-limited-placements piece-rotations))
+
+(def pieces-rotations-with-limited-placements (map piece-with-limited-placements pieces-rotations))
+
 (defn solutions []
   ;(prn (count piece-configs))
-  (branch '() (first piece-configs) empty-board))
+  (branch '() (first (piece-configs pieces-rotations-with-limited-placements)) empty-board))
 
 
 #_(count (->> (take 1000 piece-configs)

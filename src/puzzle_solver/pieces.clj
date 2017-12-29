@@ -110,4 +110,4 @@
   (doseq [r (range 0 4)]
     (print-piece (rotate-piece piece r))))
 
-(def piece-configs (apply cartesian-product pieces-rotations))
+(defn piece-configs [all-rotations] (apply cartesian-product all-rotations))

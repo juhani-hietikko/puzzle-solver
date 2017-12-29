@@ -1,6 +1,7 @@
 (ns puzzle-solver.board
   (:require [puzzle-solver.pieces :refer [parts]]
-            [clojure.math.combinatorics :refer [cartesian-product]]))
+            [clojure.math.combinatorics :refer [cartesian-product]]
+            [clojure.set :refer [intersection]]))
 
 (def empty-board (vec (for [x (range 0 8)]
                         (vec (for [y (range 0 8)]
@@ -24,9 +25,14 @@
   (every? (partial part-fits? board x y) (parts piece)))
 
 (def board-area (cartesian-product (range 0 8) (range 0 8)))
+(def board-area-set (set board-area))
 
 (defn possible-placements [board piece]
-  (filter #(can-place-in? board piece %) board-area))
+  (let [piece-restrictions (:possible-placements piece)
+        limited-placements (if piece-restrictions
+                             (intersection (set piece-restrictions) board-area-set)
+                             board-area)]
+    (filter #(can-place-in? board piece %) limited-placements)))
 
 (defn- place-part [xo yo board [xp yp]]
   (let [x (+ xo xp)
