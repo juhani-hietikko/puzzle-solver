@@ -106,6 +106,12 @@
 
 (def pieces-rotations (map rotations pieces))
 
+; test finding a solution:
+;(concat (repeat 3 '({:shape [0 0 :| 0 1 :- 0 2 :| 0 3 :- 0 4 :| 0 5 :- 0 6 :| 0 7 :-]}))
+;        (repeat 3 '({:shape [0 0 :- 0 1 :| 0 2 :- 0 3 :| 0 4 :- 0 5 :| 0 6 :- 0 7 :|]}))
+;        (repeat 2 '({:shape [0 0 :| 0 1 :- 0 2 :|]}))
+;        (repeat 2 '({:shape [0 0 :- 0 1 :| 0 2 :-]})))
+
 (defn print-rotations [piece]
   (doseq [r (range 0 4)]
     (print-piece (rotate-piece piece r))))
