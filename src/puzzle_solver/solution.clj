@@ -1,22 +1,18 @@
 (ns puzzle-solver.solution
   (:require [puzzle-solver.pieces :refer [pieces-rotations
-                                          piece-configs]]
+                                          piece-configs
+                                          parts]]
             [puzzle-solver.board :refer [empty-board
                                          possible-placements
                                          place
                                          hopeless?]]))
-(def n (atom 0))
 
 (defn- branch [placed remaining board]
-  (swap! n inc)
   (cond
-    #_(< (count remaining) 6)
     (empty? remaining)
     {:placements placed}
     (hopeless? board)
     nil
-    #_(when (= 0 (mod @n 500))
-        (prn board))
     :else
     (let [piece (first remaining)
           solutions (->> (possible-placements board piece)
@@ -40,14 +36,32 @@
 
 (def pieces-rotations-with-limited-placements (map piece-with-limited-placements pieces-rotations))
 
-(defn solutions []
-  ;(prn (count piece-configs))
-  (branch '() (first (piece-configs pieces-rotations-with-limited-placements)) empty-board))
+(defn potential-piece-config [pc]
+  (= 30 (count (->> pc
+                    (mapcat parts)
+                    (map #(nth % 2))
+                    (filter #(= :- %))))))
 
+(defn- solutions-for-one-piece-config [pieces]
+  (when (potential-piece-config pieces)
+    (branch '() pieces empty-board)))
 
-#_(count (->> (take 1000 piece-configs)
-              (filter (fn [pc]
-                        (= 30 (count (->> pc
-                                          (mapcat parts)
-                                          (map #(nth % 2))
-                                          (filter #(= :- %)))))))))
+(defn my-pmap
+  [f coll]
+  (let [n 7
+        rets (map #(future (f %)) coll)
+        step (fn step [[x & xs :as vs] fs]
+               (lazy-seq
+                 (if-let [s (seq fs)]
+                   (cons (deref x) (step xs (rest s)))
+                   (map deref vs))))]
+    (step rets (drop n rets))))
+
+(defn solutions [pieces]
+  (let [found-solutions (->> pieces
+                             (my-pmap solutions-for-one-piece-config)
+                             (filter identity))]
+    (when (seq found-solutions)
+      found-solutions)))
+
+(def all-piece-configs (piece-configs pieces-rotations-with-limited-placements))
