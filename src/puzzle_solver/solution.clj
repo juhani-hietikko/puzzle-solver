@@ -42,26 +42,8 @@
                     (map #(nth % 2))
                     (filter #(= :- %))))))
 
-(defn- solutions-for-one-piece-config [pieces]
+(defn solutions-for-one-piece-config [pieces]
   (when (potential-piece-config pieces)
     (branch '() pieces empty-board)))
-
-(defn my-pmap
-  [f coll]
-  (let [n 7
-        rets (map #(future (f %)) coll)
-        step (fn step [[x & xs :as vs] fs]
-               (lazy-seq
-                 (if-let [s (seq fs)]
-                   (cons (deref x) (step xs (rest s)))
-                   (map deref vs))))]
-    (step rets (drop n rets))))
-
-(defn solutions [pieces]
-  (let [found-solutions (->> pieces
-                             (my-pmap solutions-for-one-piece-config)
-                             (filter identity))]
-    (when (seq found-solutions)
-      found-solutions)))
 
 (def all-piece-configs (piece-configs pieces-rotations-with-limited-placements))
