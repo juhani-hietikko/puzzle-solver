@@ -65,23 +65,6 @@
                            1 2 :-
                            2 2 :|]}])
 
-(defn print-piece [p]
-  (let [parts (partition 3 (:shape p))
-        part-with-coords (fn [x y]
-                           (some (fn [[xp yp s]] (when (and (= x xp) (= y yp)) s)) parts))]
-    (println "")
-    (println "")
-    (doseq [y (reverse (range -3 5))]
-      (prn (for [x (range -3 5)]
-             (if-let [part (part-with-coords x y)]
-               part
-               10)))
-      (println ""))))
-
-(defn print-pieces []
-  (doseq [p pieces]
-    (print-piece p)))
-
 (defn inverse [part]
   (if (= :| part)
     :-
@@ -107,14 +90,30 @@
 
 (def pieces-rotations (map rotations pieces))
 
-; test finding a solution:
-;(concat (repeat 3 '({:shape [0 0 :| 0 1 :- 0 2 :| 0 3 :- 0 4 :| 0 5 :- 0 6 :| 0 7 :-]}))
-;        (repeat 3 '({:shape [0 0 :- 0 1 :| 0 2 :- 0 3 :| 0 4 :- 0 5 :| 0 6 :- 0 7 :|]}))
-;        (repeat 2 '({:shape [0 0 :| 0 1 :- 0 2 :|]}))
-;        (repeat 2 '({:shape [0 0 :- 0 1 :| 0 2 :-]})))
+(defn piece-configs [all-rotations] (apply cartesian-product all-rotations))
+
+(defn print-piece [p]
+  (let [parts (partition 3 (:shape p))
+        part-with-coords (fn [x y]
+                           (some (fn [[xp yp s]] (when (and (= x xp) (= y yp)) s)) parts))]
+    (print "\n\n")
+    (doseq [y (reverse (range -3 5))]
+      (prn (for [x (range -3 5)]
+             (if-let [part (part-with-coords x y)]
+               part
+               10)))
+      (println ""))))
+
+(defn print-pieces []
+  (doseq [p pieces]
+    (print-piece p)))
 
 (defn print-rotations [piece]
   (doseq [r (range 0 4)]
     (print-piece (rotate-piece piece r))))
 
-(defn piece-configs [all-rotations] (apply cartesian-product all-rotations))
+; test finding a solution:
+;(concat (repeat 3 '({:shape [0 0 :| 0 1 :- 0 2 :| 0 3 :- 0 4 :| 0 5 :- 0 6 :| 0 7 :-]}))
+;        (repeat 3 '({:shape [0 0 :- 0 1 :| 0 2 :- 0 3 :| 0 4 :- 0 5 :| 0 6 :- 0 7 :|]}))
+;        (repeat 2 '({:shape [0 0 :| 0 1 :- 0 2 :|]}))
+;        (repeat 2 '({:shape [0 0 :- 0 1 :| 0 2 :-]})))

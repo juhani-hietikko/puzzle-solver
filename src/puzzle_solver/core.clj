@@ -4,47 +4,42 @@
                                         <!!
                                         go-loop]]
             [puzzle-solver.solution :refer [all-piece-configs
-                                            solutions-for-one-piece-config]])
-  (:gen-class))
+                                            solutions-for-piece-config]]))
 
 (def thread-count 7)
 
-(def running (atom false))
+(def running? (atom false))
 (def piece-configs-processed (atom 0))
 (def solutions-found (atom '()))
 
 (defn- process-piece-config [piece-config]
-  (let [found-solutions (solutions-for-one-piece-config piece-config)]
+  (let [found-solutions (solutions-for-piece-config piece-config)]
     (swap! piece-configs-processed inc)
     (doseq [solution found-solutions]
       (println "FOUND A SOLUTION!!!")
       (println solution)
       (swap! solutions-found #(cons solution %)))))
 
-(defn solve-starting-from [position]
+(defn start-searching-from [start-index]
   (println "Starting...")
-  (reset! piece-configs-processed position)
+  (reset! piece-configs-processed start-index)
   (reset! solutions-found '())
-  (reset! running true)
+  (reset! running? true)
   (let [piece-configs-chan (chan)]
-    (onto-chan piece-configs-chan (drop position all-piece-configs))
+    (onto-chan piece-configs-chan (drop start-index all-piece-configs))
     (dotimes [_ thread-count]
-      (go-loop [pc (<!! piece-configs-chan)]
+      (go-loop [next-piece-config (<!! piece-configs-chan)]
                (cond
-                 (not (some? pc))
-                 (println "Finished searching through all possible plays!")
-                 (not @running)
+                 (not next-piece-config)
+                 (println "Finished searching through all possibilities!")
+                 (not @running?)
                  (println "Stopping...")
                  :else
-                 (do (process-piece-config pc)
+                 (do (process-piece-config next-piece-config)
                      (recur (<!! piece-configs-chan))))))))
 
-(defn solve []
-  (solve-starting-from 0))
+(defn start-searching []
+  (start-searching-from 0))
 
-(defn stop []
-  (reset! running false))
-
-(defn -main
-  [& args]
-  )
+(defn stop-searching []
+  (reset! running? false))

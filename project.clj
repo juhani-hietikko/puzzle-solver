@@ -2,6 +2,5 @@
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/math.combinatorics "0.1.4"]
                  [org.clojure/core.async "0.3.465"]]
-  :main ^:skip-aot puzzle-solver.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

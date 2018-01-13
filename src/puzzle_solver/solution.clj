@@ -3,11 +3,11 @@
                                           piece-configs
                                           parts]]
             [puzzle-solver.board :refer [empty-board
-                                         possible-placements
+                                         available-placements
                                          place
                                          hopeless?]]))
 
-(defn- branch [placed remaining board]
+(defn- solutions-in-branch [placed remaining board]
   (cond
     (empty? remaining)
     {:placements placed}
@@ -15,9 +15,9 @@
     nil
     :else
     (let [piece (first remaining)
-          solutions (->> (possible-placements board piece)
+          solutions (->> (available-placements board piece)
                          (map
-                           #(branch
+                           #(solutions-in-branch
                               (cons {:piece  piece
                                      :coords %}
                                     placed)
@@ -28,22 +28,22 @@
       (when (seq solutions)
         solutions))))
 
-(defn- rotation-with-limited-placements [piece-rotation]
-  (assoc piece-rotation :possible-placements (possible-placements empty-board piece-rotation)))
-
-(defn- piece-with-limited-placements [piece-rotations]
-  (map rotation-with-limited-placements piece-rotations))
-
-(def pieces-rotations-with-limited-placements (map piece-with-limited-placements pieces-rotations))
-
-(defn potential-piece-config [pc]
+(defn- potential-piece-config? [pc]
   (= 30 (count (->> pc
                     (mapcat parts)
                     (map #(nth % 2))
                     (filter #(= :- %))))))
 
-(defn solutions-for-one-piece-config [pieces]
-  (when (potential-piece-config pieces)
-    (branch '() pieces empty-board)))
+(defn solutions-for-piece-config [pieces]
+  (when (potential-piece-config? pieces)
+    (solutions-in-branch '() pieces empty-board)))
 
-(def all-piece-configs (piece-configs pieces-rotations-with-limited-placements))
+(defn- rotation-with-possible-placements [piece-rotation]
+  (assoc piece-rotation :possible-placements (available-placements empty-board piece-rotation)))
+
+(defn- piece-with-possible-placements [piece-rotations]
+  (map rotation-with-possible-placements piece-rotations))
+
+(def pieces-rotations-with-possible-placements (map piece-with-possible-placements pieces-rotations))
+
+(def all-piece-configs (piece-configs pieces-rotations-with-possible-placements))
