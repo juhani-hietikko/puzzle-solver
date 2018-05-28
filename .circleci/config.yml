@@ -38,12 +38,20 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "project.clj" }}
   test:
+    docker:
+      - image: circleci/clojure:lein-2.7.1
+
+    working_directory: ~/repo
+
+    environment:
+      LEIN_ROOT: "true"
+      JVM_OPTS: -Xmx3200m
+
     steps:
       - checkout
-      # run tests!
       - run: lein test
 
-forkflows:
+workflows:
   version: 2
   build_accept_and_test:
     jobs:
@@ -55,4 +63,3 @@ forkflows:
       - test:
           requires:
             - hold
-            
