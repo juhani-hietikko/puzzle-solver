@@ -56,10 +56,17 @@ workflows:
   build_accept_and_test:
     jobs:
       - build
-      - hold:
+      - hold_foo:
           type: approval
           requires:
             - build
-      - test:
+      - hold_bar:
+          type: approval
           requires:
-            - hold
+            - build
+      - continue_foo:
+          requires:
+            - hold_foo
+      - continue_bar:
+          requires:
+            - hold_bar
