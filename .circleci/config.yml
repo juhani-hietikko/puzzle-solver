@@ -37,6 +37,22 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "project.clj" }}
-
+  test:
+    steps:
+      - checkout
       # run tests!
       - run: lein test
+
+forkflows:
+  version: 2
+  build_accept_and_test:
+    jobs:
+      - build
+      - hold:
+          type: approval
+          requires:
+            - build
+      - test:
+          requires:
+            - hold
+            
